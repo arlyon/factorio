@@ -13,68 +13,52 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up dynamic build ARGs
+      - name: Set up dynamic build ARGs
         id: getargs
         run: echo "version=$(cat ./stable/VERSION)" >> $GITHUB_OUTPUT
-      -
-        name: Set up Docker metadata for Alpine
+      - name: Set up Docker metadata for Alpine
         id: meta-alpine
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,latest-alpine
             type=raw,stable-alpine
-#            type=raw,${{ steps.getargs.outputs.version }}-alpine
+          #            type=raw,${{ steps.getargs.outputs.version }}-alpine
           labels: |
             org.opencontainers.image.vendor=The Goofball - goofball222@gmail.com
             org.opencontainers.image.title=Factiorio Headless Server
             org.opencontainers.image.description=Factiorio Headless Server
             org.opencontainers.image.version=${{ steps.getargs.outputs.version }}-Alpine
-      -
-        name: Set up Docker metadata for Debian
+      - name: Set up Docker metadata for Debian
         id: meta-debian
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ github.repository }}
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,latest
             type=raw,stable
-#            type=raw,${{ steps.getargs.outputs.version }}
+          #            type=raw,${{ steps.getargs.outputs.version }}
           labels: |
             org.opencontainers.image.vendor=The Goofball - goofball222@gmail.com
             org.opencontainers.image.title=Factiorio Headless Server
             org.opencontainers.image.description=Factiorio Headless Server
             org.opencontainers.image.version=${{ steps.getargs.outputs.version }}-Debian
-      -
-        name: Set up QEMU
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      -
-        name: Login to GHCR
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Build and push Alpine Docker image
+      - name: Build and push Alpine Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./stable
@@ -84,8 +68,7 @@ jobs:
           tags: ${{ steps.meta-alpine.outputs.tags }}
           labels: ${{ steps.meta-alpine.outputs.labels }}
           build-args: VERSION=${{ steps.getargs.outputs.version }}
-      -
-        name: Build and push Debian Docker image
+      - name: Build and push Debian Docker image
         uses: docker/build-push-action@v6
         with:
           context: ./stable
